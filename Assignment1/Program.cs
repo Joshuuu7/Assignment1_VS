@@ -115,8 +115,6 @@ namespace Assignment1
 
                         guild = new string((from c in reader where char.IsWhiteSpace(c) || char.IsLetter(c) select c ).ToArray());
 
-                       
-
                         System.Console.WriteLine("{0: -10}", guild);
                     }
                 }
