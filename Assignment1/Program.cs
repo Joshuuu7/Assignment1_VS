@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Assignment1
 {
@@ -103,10 +104,10 @@ namespace Assignment1
         public static void PrintAllGuilds()
         {
             string reader = "";
-            string [] guildWithoutWhiteSpace;
             using (StreamReader inFile = new StreamReader(@"guilds.txt"))
             {
                 string guild = "";
+                string guildWithoutSpaces = "";
                 while (!inFile.EndOfStream)
                 {
                     reader = inFile.ReadLine().ToString();
@@ -114,8 +115,11 @@ namespace Assignment1
                         // Code from https://stackoverflow.com/questions/7411438/remove-characters-from-c-sharp-string
 
                         guild = new string((from c in reader where char.IsWhiteSpace(c) || char.IsLetter(c) select c ).ToArray());
+                        char[] ch = guild.ToCharArray();
+                        ch[0] = ' ';
+                        guildWithoutSpaces = new string(ch);
 
-                        System.Console.WriteLine("{0: -10}", guild);
+                        System.Console.WriteLine(guildWithoutSpaces);
                     }
                 }
             }
