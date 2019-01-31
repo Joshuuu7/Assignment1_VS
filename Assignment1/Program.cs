@@ -141,8 +141,18 @@ namespace Assignment1
         }
         public override string ToString()
         {
-            string formattedString = String.Format("Name: {0, -20} Race: {1, -10} Level: {2, -10} Guild: {3, -10}", name, race.ToString(), level, guildID).ToString();
-            return formattedString;
+            //string slacker = "slacker";
+            //using (StreamWriter inFile = new StreamWriter("guilds.txt"))
+            //{
+            //    while (!inFile.EndOfStream)
+            //    {
+            //        //string reader = "";
+            //        char ch = (char)inFile.Read();
+            //    }
+            //}
+
+            string formattedString = String.Format("Name: {0, -20} Race: {1, -10} Level: {2, -10} Guild: {3, -10}", name, race.ToString(), level, guildID);
+            return "Player is playing hard to get! " + formattedString;
         }
     }
     public class Item : IComparable
@@ -483,13 +493,13 @@ namespace Assignment1
                             System.Console.WriteLine("nameString = " + nameString);*/
                             switch (raceString)
                             {
-                                case "Orc":
+                                case "0":
                                     race = Race.Orc;
                                     break;
-                                case "Troll":
+                                case "1":
                                     race = Race.Troll;
                                     break;
-                                case "Tauren":
+                                case "2":
                                     race = Race.Tauren;
                                     break;
                                 default:
@@ -522,13 +532,13 @@ namespace Assignment1
                 System.Console.WriteLine("nameString = " + nameString);*/
                 switch (raceString)
                 {
-                    case "Orc":
+                    case "0":
                         race = Race.Orc;
                         break;
-                    case "Troll":
+                    case "1":
                         race = Race.Troll;
                         break;
-                    case "Tauren":
+                    case "2":
                         race = Race.Tauren;
                         break;
                     default:
