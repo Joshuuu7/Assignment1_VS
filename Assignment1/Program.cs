@@ -298,6 +298,22 @@ namespace Assignment1
                         PrintMainMenu();
                         Console.ReadKey();
                     }
+                    else if (Convert.ToUInt32(slacker) == 3)
+                    {
+                        outFile.WriteLine(slacker);
+                        Console.Clear();
+                        ListAllGear();
+                        PrintMainMenu();
+                        Console.ReadKey();
+                    }
+                    else if (Convert.ToUInt32(slacker) == 6)
+                    {
+                        outFile.WriteLine(slacker);
+                        Console.Clear();
+                        JoinGuild();
+                        PrintMainMenu();
+                        Console.ReadKey();
+                    }
                     else
                     {
                         return;
@@ -326,8 +342,10 @@ namespace Assignment1
             System.Console.WriteLine();
         }
 
+        // Option 1
         public static void PrintAllPlayers()
         {
+            #region
             List<Player> player_roster = new List<Player>();
             using (StreamReader inFile = new StreamReader("players.txt"))
             {
@@ -570,9 +588,10 @@ namespace Assignment1
             {
                 System.Console.WriteLine(Pla.ToString());
             }
-
+            #endregion
         }
 
+        // Option 2
         public static void PrintAllGuilds()
         {
             string reader = "";
@@ -593,12 +612,174 @@ namespace Assignment1
                             ch[0] = ' ';
                             guildWithoutSpaces = new string(ch);
                             System.Console.WriteLine(guildWithoutSpaces);
-                            System.Console.WriteLine();
-
                         }
                     }
                 }
             }
+            System.Console.WriteLine();
+        }
+
+        // Option 3
+        public static void ListAllGear()
+        {
+            using (StreamReader inFile = new StreamReader("equipment.txt"))
+            {
+                string gearID = "";
+                string gearName = "";
+                string gearNo1 = "";
+                string gearNo2 = "";
+                string gearNo3 = "";
+                string gearNo4 = "";
+                string gearNo5 = "";
+                string gearSlogan = "";
+
+                bool readingGearID = true;
+                bool readingGearNo1 = false;
+                bool readingGearNo2 = false;
+                bool readingGearNo3 = false;
+                bool readingGearNo4 = false;
+                bool readingGearNo5 = false;
+
+                StringBuilder variableBuilder = new StringBuilder();
+                while (!inFile.EndOfStream)
+                {
+                    char ch = (char)inFile.Read();
+                    int index_of = Program.allPossibleChars.IndexOf(ch);
+                    if (index_of == -1)
+                    {
+                        if (readingGearID)
+                        {
+                            readingGearID = false;
+                            gearID = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            do
+                            {
+                                ch = (char)inFile.Read();
+                                index_of = Program.allPossibleChars.IndexOf(ch);
+                            }
+                            while (index_of == -1);
+                            index_of = -1;
+                            while (index_of == -1)
+                            {
+                                variableBuilder.Append(ch);
+                                ch = (char)inFile.Read();
+                                index_of = Program.digits.IndexOf(ch);
+                            }
+                            gearName = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            variableBuilder.Append(ch);
+                            readingGearNo1 = true;
+                        }
+                        else if (readingGearNo1)
+                        {
+                            gearNo1 = variableBuilder.ToString();
+                            readingGearNo1 = false;
+                            readingGearNo2 = true;
+                            variableBuilder = new StringBuilder();
+                        }
+                        else if (readingGearNo2)
+                        {
+                            gearNo2 = variableBuilder.ToString();
+                            readingGearNo2 = false;
+                            readingGearNo3 = true;
+                            variableBuilder = new StringBuilder();
+                        }
+                        else if (readingGearNo3)
+                        {
+                            gearNo3 = variableBuilder.ToString();
+                            readingGearNo3 = false;
+                            readingGearNo4 = true;
+                            variableBuilder = new StringBuilder();
+                        }
+                        else if (readingGearNo4)
+                        {
+                            gearNo4 = variableBuilder.ToString();
+                            readingGearNo4 = false;
+                            readingGearNo5 = true;
+                            variableBuilder = new StringBuilder();
+                        }
+                        else if (readingGearNo5)
+                        {
+                            gearNo5 = variableBuilder.ToString();
+                            readingGearNo5 = false;
+                            variableBuilder = new StringBuilder();
+                            do
+                            {
+                                ch = (char)inFile.Read();
+                                index_of = Program.allPossibleChars.IndexOf(ch);
+                            }
+                            while (index_of == -1);
+                            index_of = -1;
+                            while (index_of == -1)
+                            {
+                                while (index_of == -1)
+                                {
+                                    variableBuilder.Append(ch);
+                                    ch = (char)inFile.Read();
+                                    index_of = Program.digits.IndexOf(ch);
+                                    if (inFile.EndOfStream)
+                                    {
+                                        variableBuilder.Append(ch);
+                                        gearSlogan = variableBuilder.ToString();
+                                        System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
+                                        return;
+                                    }
+                                }
+                                gearSlogan = variableBuilder.ToString();
+                                System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
+                                variableBuilder = new StringBuilder();
+                                variableBuilder.Append(ch);
+                                readingGearID = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        variableBuilder.Append(ch);
+                    }
+                }
+            }
+        }
+
+        public static void JoinGuild()
+        {
+            string[] players = { "DarkMaster", "xXSephirothXx", "Scobomb" };
+            string[] guilds = { "Knights of Cydonia", "Death and Taxes", "I Just Crit My Pants", "What Have We Here", "Big Dumb Guild", "Honestly" };
+
+            string player_name = "name";
+            string guild_to_join = "guild";
+
+            System.Console.Write("Enter the player name: ");
+            player_name = System.Console.ReadLine();
+
+            System.Console.Write("Enter the Guild they will join: ");
+            guild_to_join = System.Console.ReadLine();
+
+            using (StreamWriter outFile = new StreamWriter("joinedguilds.txt"))
+            {
+                
+                if (player_name.CompareTo(players[0].ToString()) == 0 && ( guild_to_join.CompareTo(guilds[0]) == 0 || guild_to_join.CompareTo(guilds[1]) == 0 || guild_to_join.CompareTo(guilds[2]) == 0 || guild_to_join.CompareTo(guilds[3]) == 0 || guild_to_join.CompareTo(guilds[4]) == 0 || guild_to_join.CompareTo(guilds[5]) == 0) )
+                {
+                    outFile.WriteLine(player_name);
+                    System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                }
+                else if (player_name.CompareTo(players[1].ToString()) == 0 && ( guild_to_join.CompareTo(guilds[0]) == 0 || guild_to_join.CompareTo(guilds[1]) == 0 || guild_to_join.CompareTo(guilds[2]) == 0 || guild_to_join.CompareTo(guilds[3]) == 0 || guild_to_join.CompareTo(guilds[4]) == 0 || guild_to_join.CompareTo(guilds[5]) == 0) )
+                {
+                    outFile.WriteLine(player_name);
+                    System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                }
+                else if (player_name.CompareTo(players[2].ToString()) == 0 && ( guild_to_join.CompareTo(guilds[0]) == 0 || guild_to_join.CompareTo(guilds[1]) == 0 || guild_to_join.CompareTo(guilds[2]) == 0 || guild_to_join.CompareTo(guilds[3]) == 0 || guild_to_join.CompareTo(guilds[4]) == 0 || guild_to_join.CompareTo(guilds[5]) == 0) )
+                {
+                    outFile.WriteLine(player_name);
+                    System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                }
+                else
+                {
+                    System.Console.WriteLine("No player or guild with that name.");
+                    return;
+                }
+            }
+            System.Console.WriteLine();
         }
     }
 }
