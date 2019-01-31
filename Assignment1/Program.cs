@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
+
 namespace Assignment1
 {
     public enum ItemType
@@ -13,7 +14,9 @@ namespace Assignment1
         Wrist, Gloves, Belt, Pants, Boots,
         Ring, Trinket
     };
+
     public enum Race { Orc = 0, Troll = 1, Tauren = 2, Forsaken = 3 };
+
     public class Player : IComparable
     {
         public static uint firstID = 10000;
@@ -275,7 +278,7 @@ namespace Assignment1
                     {
                         outFile.WriteLine(slacker);
                         Console.Clear();
-                        //PrintAllGuilds();
+                        PrintAllGuilds();
                         PrintMainMenu();
                         Console.ReadKey();
                     }
@@ -553,6 +556,36 @@ namespace Assignment1
                 System.Console.WriteLine(Pla.ToString());
             }
 
+        }
+
+        public static void PrintAllGuilds()
+        {
+            string reader = "";
+            string[] guildWithoutWhiteSpace;
+
+            using (StreamReader inFile = new StreamReader(@"guilds.txt"))
+            {
+                string guild = "";
+                string guildWithoutSpaces = "";
+                while (!inFile.EndOfStream)
+                {
+                    reader = inFile.ReadLine().ToString();
+                    {
+                        {
+                            // Code from https://stackoverflow.com/questions/7411438/remove-characters-from-c-sharp-string 
+
+                            guild = new string((from c in reader where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
+                            char[] ch = guild.ToCharArray();
+                            ch[0] = ' ';
+                            guildWithoutSpaces = new string(ch);
+                            //System.Console.WriteLine("{0: -10}", guild);
+                            System.Console.WriteLine(guildWithoutSpaces);
+                            System.Console.WriteLine();
+
+                        }
+                    }
+                }
+            }
         }
     }
 }
