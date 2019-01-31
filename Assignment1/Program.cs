@@ -144,17 +144,33 @@ namespace Assignment1
         }
         public override string ToString()
         {
-            //string slacker = "slacker";
-            //using (StreamWriter inFile = new StreamWriter("guilds.txt"))
-            //{
-            //    while (!inFile.EndOfStream)
-            //    {
-            //        //string reader = "";
-            //        char ch = (char)inFile.Read();
-            //    }
-            //}
+            string guild_string = "";
+            switch (guildID)
+            {
+                case 475186:
+                    guild_string = "Knights of Cydonia";
+                    break;
+                case 748513:
+                    guild_string = "Death and Taxes";
+                    break;
+                case 154794:
+                    guild_string = "I just crit my pants";
+                    break;
+                case 928126:
+                    guild_string = "What have we here";
+                    break;
+                case 513487:
+                    guild_string = "Big dumb guild";
+                    break;
+                case 864722:
+                    guild_string = "Honestly";
+                    break;
+                case 185470:
+                    guild_string = "Sacred Heart";
+                    break;
+            }
 
-            string formattedString = String.Format("Name: {0, -20} Race: {1, -10} Level: {2, -10} Guild: {3, -10}", name, race.ToString(), level, guildID);
+            string formattedString = String.Format("Name: {0, -20} Race: {1, -10} Level: {2, -10} Guild: {3, -10}", name, race.ToString(), level, guild_string);
             return "Player is playing hard to get! " + formattedString;
         }
     }
@@ -284,10 +300,9 @@ namespace Assignment1
                     }
                     else
                     {
-                        outFile.WriteLine(slacker);
-                        Console.ReadKey();
+                        return;
                     }
-                    Console.ReadKey();
+                    //Console.ReadKey();
                 }
                 Console.Clear();
             }
@@ -561,7 +576,6 @@ namespace Assignment1
         public static void PrintAllGuilds()
         {
             string reader = "";
-            string[] guildWithoutWhiteSpace;
 
             using (StreamReader inFile = new StreamReader(@"guilds.txt"))
             {
@@ -578,7 +592,6 @@ namespace Assignment1
                             char[] ch = guild.ToCharArray();
                             ch[0] = ' ';
                             guildWithoutSpaces = new string(ch);
-                            //System.Console.WriteLine("{0: -10}", guild);
                             System.Console.WriteLine(guildWithoutSpaces);
                             System.Console.WriteLine();
 
