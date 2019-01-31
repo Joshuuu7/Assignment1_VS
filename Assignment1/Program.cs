@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
-
 namespace Assignment1
 {
     public enum ItemType
@@ -14,9 +13,7 @@ namespace Assignment1
         Wrist, Gloves, Belt, Pants, Boots,
         Ring, Trinket
     };
-
     public enum Race { Orc = 0, Troll = 1, Tauren = 2, Forsaken = 3 };
-
     public class Player : IComparable
     {
         public static uint firstID = 10000;
@@ -129,7 +126,6 @@ namespace Assignment1
             this.guildID = guildId;
             this.gear = gear;
             this.inventory = inventory;
-            System.Console.WriteLine("I am making a new player. " + name);
         }
         public int CompareTo(object alpha)
         {
@@ -169,9 +165,7 @@ namespace Assignment1
                     guild_string = "Sacred Heart";
                     break;
             }
-
-            string formattedString = String.Format("Name: {0, -20} Race: {1, -10} Level: {2, -10} Guild: {3, -10}", name, race.ToString(), level, guild_string);
-            return "Player is playing hard to get! " + formattedString;
+            return "Name: " + name + "\tRace: " + race + "\tLevel: " + level + "\tGuild: " + guild_string;
         }
     }
     public class Item : IComparable
@@ -194,15 +188,16 @@ namespace Assignment1
             requirement = 1;
             flavor = "Every adventure has humble beginnings!";
         }
-        public Item(uint i, string nm, uint il, uint pr, uint st, uint rq, string flv)
+        public Item(uint i, string nm, ItemType gear_type, uint il, uint pr, uint st, uint rq, string flv)
         {
-            id = i;
-            name = nm;
-            ilvl = il;
-            primary = pr;
-            stamina = st;
-            requirement = rq;
-            flavor = flv;
+            this.id = i;
+            this.name = nm;
+            this.type = gear_type;
+            this.ilvl = il;
+            this.primary = pr;
+            this.stamina = st;
+            this.requirement = rq;
+            this.flavor = flv;
         }
         public uint ID
         {
@@ -254,6 +249,10 @@ namespace Assignment1
             else
                 return 0;
         }
+        public override string ToString()
+        {
+            return id + " with " + name + " " + Flavor;
+        }
     }
     public class Program
     {
@@ -275,6 +274,10 @@ namespace Assignment1
             string selectedOption = "";
             System.Console.WriteLine();
             System.Console.WriteLine(welcome + "! \n");
+            List<Player> player_roster = getAllPlayers();
+            List<Item> gears = getAllGear();
+            string guild = "";
+
             while (selectedOption != "10" || selectedOption != "q" || selectedOption != "Q" || selectedOption != "quit" || selectedOption != "Quit" || selectedOption != "exit" || selectedOption != "Exit")
             {
                 PrintMainMenu();
@@ -282,43 +285,87 @@ namespace Assignment1
                 using (StreamWriter outFile = new StreamWriter("output.txt"))
                 {
                     slacker = System.Console.ReadLine();
-                    if (slacker.CompareTo("1") == 0)
+                    if (Convert.ToUInt32(slacker) == 1 )
                     {
                         outFile.WriteLine(slacker);
                         Console.Clear();
-                        PrintAllPlayers();
+                        PrintAllPlayers(player_roster);
                         PrintMainMenu();
-                        Console.ReadKey();
+                        //Console.ReadKey();
                     }
-                    else if (slacker.CompareTo("2") == 0)
+                    else if (Convert.ToUInt32(slacker) == 2)
                     {
                         outFile.WriteLine(slacker);
                         Console.Clear();
                         PrintAllGuilds();
                         PrintMainMenu();
-                        Console.ReadKey();
+                        //Console.ReadKey();
                     }
                     else if (Convert.ToUInt32(slacker) == 3)
                     {
                         outFile.WriteLine(slacker);
                         Console.Clear();
-                        ListAllGear();
+                        ListAllGear(gears);
                         PrintMainMenu();
-                        Console.ReadKey();
+                        //Console.ReadKey();
+                    }
+                    else if (Convert.ToUInt32(slacker) == 4)
+                    {
+                        outFile.WriteLine(slacker);
+                        Console.Clear();
+                        System.Console.WriteLine("Please enter a player name:");
+                        string playerName = System.Console.ReadLine().Trim();
+                        System.Console.WriteLine("You entered: " + playerName);
+                        foreach (Player P in player_roster)
+                        {
+                            if (P.Name == playerName)
+                            {
+                                System.Console.WriteLine("i linked you with " + playerName);
+                                PrintGearListForPlayer(P, gears);
+                            }
+                        }
+                        //Console.ReadKey();
+                    }
+                    else if (Convert.ToUInt32(slacker) == 5)
+                    {
+                        outFile.WriteLine(slacker);
+                        Console.Clear();
+                        foreach (Player P in player_roster)
+                        {
+                            LeaveGuild(P);
+                        }
+                        PrintMainMenu();
+                        //Console.ReadKey();
                     }
                     else if (Convert.ToUInt32(slacker) == 6)
                     {
                         outFile.WriteLine(slacker);
                         Console.Clear();
-                        JoinGuild();
+                        string player_name = "name";
+                        string guild_to_join = "guild";
+
+                        System.Console.Write("Enter the player name: ");
+                        player_name = System.Console.ReadLine();
+
+                        System.Console.Write("Enter the Guild they will join: ");
+                        guild_to_join = System.Console.ReadLine();
+
+                        foreach (Player P in player_roster)
+                        {
+                            if (P.Name == player_name)
+                            {
+                                JoinGuild(P, guild_to_join);
+                            }
+                        }
+
                         PrintMainMenu();
-                        Console.ReadKey();
+                        //Console.ReadKey();
                     }
                     else
                     {
                         return;
                     }
-                    //Console.ReadKey();
+                    Console.ReadKey();
                 }
                 Console.Clear();
             }
@@ -342,286 +389,36 @@ namespace Assignment1
             System.Console.WriteLine();
         }
 
-        // Option 1
-        public static void PrintAllPlayers()
+        // Option 4
+        public static void PrintGearListForPlayer(Player P, List<Item> gears)
         {
-            #region
-            List<Player> player_roster = new List<Player>();
-            using (StreamReader inFile = new StreamReader("players.txt"))
+            uint[] gears_array = P.Gear;
+            foreach (int g in gears_array)
             {
-
-                string idString = "";
-                string nameString = "";
-                string raceString = "";
-                string levelString = "";
-                string expString = "";
-                string guildString = "";
-                uint[] gear = new uint[GEAR_SLOTS];
-                List<uint> inventory = new List<uint>();
-
-                bool readingID = false;
-                bool readingName = false;
-                bool readingRace = false;
-                bool readingLevel = false;
-                bool readingExp = false;
-                bool readingGuild = false;
-                bool readingGear0 = false, readingGear1 = false, readingGear2 = false, readingGear3 = false, readingGear4 = false, readingGear5 = false;
-                bool readingInventory0 = false, readingInventory1 = false, readingInventory2 = false, readingInventory3 = false, readingInventory4 = false;
-                bool readingInventory5 = false, readingInventory6 = false, readingInventory7 = false;
-                Race race;
-
-                readingID = true;
-                StringBuilder variableBuilder = new StringBuilder();
-                while (!inFile.EndOfStream)
+                foreach (Item i in gears)
                 {
-                    //string reader = "";
-                    char ch = (char)inFile.Read();
-
-
-                    uint g_index = 0;
-
-
-
-                    int index_of = Program.allPossibleChars.IndexOf(ch);
-                    //System.Console.WriteLine("index_of = " + index_of + " at " + ch);
-                    if (index_of == -1)
+                    if (i.ID == g)
                     {
-                        if (readingID)
-                        {
-                            idString = variableBuilder.ToString();
-                            variableBuilder = new StringBuilder();
-                            readingID = false;
-                            readingName = true;
-                        }
-                        else if (readingName)
-                        {
-                            nameString = variableBuilder.ToString();
-                            variableBuilder = new StringBuilder();
-                            readingName = false;
-                            readingRace = true;
-                        }
-                        else if (readingRace)
-                        {
-                            raceString = variableBuilder.ToString();
-                            variableBuilder = new StringBuilder();
-                            readingRace = false;
-                            readingLevel = true;
-                        }
-                        else if (readingLevel)
-                        {
-                            levelString = variableBuilder.ToString();
-                            variableBuilder = new StringBuilder();
-                            readingLevel = false;
-                            readingExp = true;
-                        }
-                        else if (readingExp)
-                        {
-                            expString = variableBuilder.ToString();
-                            variableBuilder = new StringBuilder();
-                            readingExp = false;
-                            readingGuild = true;
-                        }
-                        else if (readingGuild)
-                        {
-                            guildString = variableBuilder.ToString();
-                            variableBuilder = new StringBuilder();
-                            readingGuild = false;
-                            readingGear0 = true;
-                        }
-                        else if (readingGear0)
-                        {
-                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
-                            variableBuilder = new StringBuilder();
-                            readingGear0 = false;
-                            readingGear1 = true;
-                        }
-                        else if (readingGear1)
-                        {
-                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
-                            variableBuilder = new StringBuilder();
-                            readingGear1 = false;
-                            readingGear2 = true;
-                        }
-                        else if (readingGear2)
-                        {
-                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
-                            variableBuilder = new StringBuilder();
-                            readingGear2 = false;
-                            readingGear3 = true;
-                        }
-                        else if (readingGear3)
-                        {
-                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
-                            variableBuilder = new StringBuilder();
-                            readingGear3 = false;
-                            readingGear4 = true;
-                        }
-                        else if (readingGear4)
-                        {
-                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
-                            variableBuilder = new StringBuilder();
-                            readingGear4 = false;
-                            readingGear5 = true;
-                        }
-                        else if (readingGear5)
-                        {
-                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
-                            variableBuilder = new StringBuilder();
-                            readingGear5 = false;
-                            readingInventory0 = true;
-                        }
-                        else if (readingInventory0)
-                        {
-                            inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                            variableBuilder = new StringBuilder();
-                            readingInventory0 = false;
-                            readingInventory1 = true;
-                        }
-                        else if (readingInventory1)
-                        {
-                            inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                            variableBuilder = new StringBuilder();
-                            readingInventory1 = false;
-                            readingInventory2 = true;
-                        }
-                        else if (readingInventory2)
-                        {
-                            inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                            variableBuilder = new StringBuilder();
-                            readingInventory2 = false;
-                            readingInventory3 = true;
-                        }
-                        else if (readingInventory3)
-                        {
-                            inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                            variableBuilder = new StringBuilder();
-                            readingInventory3 = false;
-                            readingInventory4 = true;
-                        }
-                        else if (readingInventory4)
-                        {
-                            inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                            variableBuilder = new StringBuilder();
-                            readingInventory4 = false;
-                            readingInventory5 = true;
-                        }
-                        else if (readingInventory5)
-                        {
-                            inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                            variableBuilder = new StringBuilder();
-                            readingInventory5 = false;
-                            readingInventory6 = true;
-                        }
-                        else if (readingInventory6)
-                        {
-                            inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                            variableBuilder = new StringBuilder();
-                            readingInventory6 = false;
-                            readingInventory7 = true;
-                        }
-                        else if (readingInventory7)
-                        {
-                            inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                            variableBuilder = new StringBuilder();
-                            readingInventory7 = false;
-                            /*System.Console.WriteLine("I am done with the player.");
-                            System.Console.WriteLine("idString = " + idString);
-                            System.Console.WriteLine("nameString = " + nameString);*/
-                            switch (raceString)
-                            {
-                                case "0":
-                                    race = Race.Orc;
-                                    break;
-                                case "1":
-                                    race = Race.Troll;
-                                    break;
-                                case "2":
-                                    race = Race.Tauren;
-                                    break;
-                                default:
-                                    race = Race.Forsaken;
-                                    break;
-                            }
-                            //Player Pl = new Player(Convert.ToUInt32(idString), nameString, race, Convert.ToUInt32(levelString), Convert.ToUInt32(expString), Convert.ToUInt32(guildString), gear, inventory);
-                            //System.Console.WriteLine("P string is " + Pl.ToString());
-                            //player_roster.Add(new Player(Convert.ToUInt32(idString), nameString, race, Convert.ToUInt32(levelString), Convert.ToUInt32(expString), Convert.ToUInt32(guildString), gear, inventory));
-                            //System.Console.WriteLine();
-                            player_roster.Add(new Player(Convert.ToUInt32(idString), nameString, race, Convert.ToUInt32(levelString), Convert.ToUInt32(expString), Convert.ToUInt32(guildString), gear, inventory));
-                            //System.Console.WriteLine("nameStrin    g: " + nameString);
-                            /*foreach (Player P in player_roster)
-                            {
-                                System.Console.WriteLine("Player is within: " + P.ToString());
-                            }*/
-                            inFile.Read();
-                            readingID = true;
-                        }
-                    }
-                    else
-                    {
-                        variableBuilder.Append(ch);
-                        //System.Console.WriteLine("variableBuilder " + variableBuilder.ToString() + " " + readingID);
+                        Console.WriteLine(i.ToString());
                     }
                 }
-                inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
-                /*System.Console.WriteLine("I am done with the player.");
-                System.Console.WriteLine("idString = " + idString);
-                System.Console.WriteLine("nameString = " + nameString);*/
-                switch (raceString)
-                {
-                    case "0":
-                        race = Race.Orc;
-                        break;
-                    case "1":
-                        race = Race.Troll;
-                        break;
-                    case "2":
-                        race = Race.Tauren;
-                        break;
-                    default:
-                        race = Race.Forsaken;
-                        break;
-                }
-                player_roster.Add(new Player(Convert.ToUInt32(idString), nameString, race, Convert.ToUInt32(levelString), Convert.ToUInt32(expString), Convert.ToUInt32(guildString), gear, inventory));
             }
-
-            foreach (Player Pla in player_roster)
-            {
-                System.Console.WriteLine(Pla.ToString());
-            }
-            #endregion
         }
 
-        // Option 2
-        public static void PrintAllGuilds()
-        {
-            string reader = "";
 
-            using (StreamReader inFile = new StreamReader(@"guilds.txt"))
-            {
-                string guild = "";
-                string guildWithoutSpaces = "";
-                while (!inFile.EndOfStream)
-                {
-                    reader = inFile.ReadLine().ToString();
-                    {
-                        {
-                            // Code from https://stackoverflow.com/questions/7411438/remove-characters-from-c-sharp-string 
-
-                            guild = new string((from c in reader where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
-                            char[] ch = guild.ToCharArray();
-                            ch[0] = ' ';
-                            guildWithoutSpaces = new string(ch);
-                            System.Console.WriteLine(guildWithoutSpaces);
-                        }
-                    }
-                }
-            }
-            System.Console.WriteLine();
-        }
 
         // Option 3
-        public static void ListAllGear()
+        public static void ListAllGear(List<Item> gears)
         {
+            foreach (Item g in gears)
+            {
+                Console.WriteLine(g.ToString());
+            }
+        }
+
+        public static List<Item> getAllGear()
+        {
+            List<Item> allGear = new List<Item>();
             using (StreamReader inFile = new StreamReader("equipment.txt"))
             {
                 string gearID = "";
@@ -641,6 +438,7 @@ namespace Assignment1
                 bool readingGearNo5 = false;
 
                 StringBuilder variableBuilder = new StringBuilder();
+                ItemType gear_type;
                 while (!inFile.EndOfStream)
                 {
                     char ch = (char)inFile.Read();
@@ -721,12 +519,92 @@ namespace Assignment1
                                     {
                                         variableBuilder.Append(ch);
                                         gearSlogan = variableBuilder.ToString();
-                                        System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
-                                        return;
+                                        switch (Convert.ToUInt32(gearNo1))
+                                        {
+                                            case 0:
+                                                gear_type = ItemType.Helmet;
+                                                break;
+                                            case 1:
+                                                gear_type = ItemType.Neck;
+                                                break;
+                                            case 2:
+                                                gear_type = ItemType.Shoulders;
+                                                break;
+                                            case 3:
+                                                gear_type = ItemType.Back;
+                                                break;
+                                            case 4:
+                                                gear_type = ItemType.Chest;
+                                                break;
+                                            case 5:
+                                                gear_type = ItemType.Wrist;
+                                                break;
+                                            case 6:
+                                                gear_type = ItemType.Gloves;
+                                                break;
+                                            case 7:
+                                                gear_type = ItemType.Belt;
+                                                break;
+                                            case 8:
+                                                gear_type = ItemType.Pants;
+                                                break;
+                                            case 9:
+                                                gear_type = ItemType.Boots;
+                                                break;
+                                            case 10:
+                                                gear_type = ItemType.Ring;
+                                                break;
+                                            default:
+                                                gear_type = ItemType.Trinket;
+                                                break;
+                                        }
+                                        allGear.Add(new Item(Convert.ToUInt32(gearID), gearName, gear_type, Convert.ToUInt32(gearNo2), Convert.ToUInt32(gearNo3), Convert.ToUInt32(gearNo4), Convert.ToUInt32(gearNo5), gearSlogan));
+                                        //System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
+                                        return allGear;
                                     }
                                 }
                                 gearSlogan = variableBuilder.ToString();
-                                System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
+                                switch (Convert.ToUInt32(gearNo1))
+                                {
+                                    case 0:
+                                        gear_type = ItemType.Helmet;
+                                        break;
+                                    case 1:
+                                        gear_type = ItemType.Neck;
+                                        break;
+                                    case 2:
+                                        gear_type = ItemType.Shoulders;
+                                        break;
+                                    case 3:
+                                        gear_type = ItemType.Back;
+                                        break;
+                                    case 4:
+                                        gear_type = ItemType.Chest;
+                                        break;
+                                    case 5:
+                                        gear_type = ItemType.Wrist;
+                                        break;
+                                    case 6:
+                                        gear_type = ItemType.Gloves;
+                                        break;
+                                    case 7:
+                                        gear_type = ItemType.Belt;
+                                        break;
+                                    case 8:
+                                        gear_type = ItemType.Pants;
+                                        break;
+                                    case 9:
+                                        gear_type = ItemType.Boots;
+                                        break;
+                                    case 10:
+                                        gear_type = ItemType.Ring;
+                                        break;
+                                    default:
+                                        gear_type = ItemType.Trinket;
+                                        break;
+                                }
+                                allGear.Add(new Item(Convert.ToUInt32(gearID), gearName, gear_type, Convert.ToUInt32(gearNo2), Convert.ToUInt32(gearNo3), Convert.ToUInt32(gearNo4), Convert.ToUInt32(gearNo5), gearSlogan));
+                                //System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
                                 variableBuilder = new StringBuilder();
                                 variableBuilder.Append(ch);
                                 readingGearID = true;
@@ -739,47 +617,361 @@ namespace Assignment1
                     }
                 }
             }
+            return allGear;
         }
 
-        public static void JoinGuild()
+        // Option 1
+        public static void PrintAllPlayers(List<Player> players)
         {
-            string[] players = { "DarkMaster", "xXSephirothXx", "Scobomb" };
-            string[] guilds = { "Knights of Cydonia", "Death and Taxes", "I Just Crit My Pants", "What Have We Here", "Big Dumb Guild", "Honestly" };
-
-            string player_name = "name";
-            string guild_to_join = "guild";
-
-            System.Console.Write("Enter the player name: ");
-            player_name = System.Console.ReadLine();
-
-            System.Console.Write("Enter the Guild they will join: ");
-            guild_to_join = System.Console.ReadLine();
-
-            using (StreamWriter outFile = new StreamWriter("joinedguilds.txt"))
+            foreach (Player Pla in players)
             {
-                
-                if (player_name.CompareTo(players[0].ToString()) == 0 && ( guild_to_join.CompareTo(guilds[0]) == 0 || guild_to_join.CompareTo(guilds[1]) == 0 || guild_to_join.CompareTo(guilds[2]) == 0 || guild_to_join.CompareTo(guilds[3]) == 0 || guild_to_join.CompareTo(guilds[4]) == 0 || guild_to_join.CompareTo(guilds[5]) == 0) )
+                System.Console.WriteLine(Pla.ToString());
+            }
+        }
+
+        // Option 2
+        public static void PrintAllGuilds()
+        {
+            string reader = "";
+            string[] guildWithoutWhiteSpace;
+            string guildWithoutSpaces = "";
+            string[] guilds = { };
+            using (StreamReader inFile = new StreamReader(@"guilds.txt"))
+            {
+                string guild = "";
+                while (!inFile.EndOfStream)
                 {
-                    outFile.WriteLine(player_name);
-                    System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
-                }
-                else if (player_name.CompareTo(players[1].ToString()) == 0 && ( guild_to_join.CompareTo(guilds[0]) == 0 || guild_to_join.CompareTo(guilds[1]) == 0 || guild_to_join.CompareTo(guilds[2]) == 0 || guild_to_join.CompareTo(guilds[3]) == 0 || guild_to_join.CompareTo(guilds[4]) == 0 || guild_to_join.CompareTo(guilds[5]) == 0) )
-                {
-                    outFile.WriteLine(player_name);
-                    System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
-                }
-                else if (player_name.CompareTo(players[2].ToString()) == 0 && ( guild_to_join.CompareTo(guilds[0]) == 0 || guild_to_join.CompareTo(guilds[1]) == 0 || guild_to_join.CompareTo(guilds[2]) == 0 || guild_to_join.CompareTo(guilds[3]) == 0 || guild_to_join.CompareTo(guilds[4]) == 0 || guild_to_join.CompareTo(guilds[5]) == 0) )
-                {
-                    outFile.WriteLine(player_name);
-                    System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
-                }
-                else
-                {
-                    System.Console.WriteLine("No player or guild with that name.");
-                    return;
+                    reader = inFile.ReadLine().ToString();
+                    {
+                        {
+                            // Code from https://stackoverflow.com/questions/7411438/remove-characters-from-c-sharp-string 
+                            guild = new string((from c in reader where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
+                            char[] ch = guild.ToCharArray();
+                            ch[0] = ' ';
+                            guildWithoutSpaces = new string(ch);
+                            System.Console.WriteLine(guildWithoutSpaces);
+                            
+                            //System.Console.WriteLine("{0: -10}", guild);
+                            //System.Console.WriteLine(guildWithoutSpaces);
+                            //System.Console.WriteLine();
+                        }
+                    }
                 }
             }
-            System.Console.WriteLine();
+        }
+
+        public static List<Player> getAllPlayers()
+        {
+            List<Player> player_roster = new List<Player>();
+            using (StreamReader inFile = new StreamReader("players.txt"))
+            {
+
+                string idString = "";
+                string nameString = "";
+                string raceString = "";
+                string levelString = "";
+                string expString = "";
+                string guildString = "";
+                uint[] gear = new uint[GEAR_SLOTS];
+                List<uint> inventory = new List<uint>();
+
+                bool readingID = false;
+                bool readingName = false;
+                bool readingRace = false;
+                bool readingLevel = false;
+                bool readingExp = false;
+                bool readingGuild = false;
+                bool readingGear0 = false, readingGear1 = false, readingGear2 = false, readingGear3 = false, readingGear4 = false, readingGear5 = false, readingGear6 = false, readingGear7 = false, readingGear8 = false, readingGear9 = false, readingGear10 = false, readingGear11 = false, readingGear12 = false, readingGear13 = false;
+                /*bool readingInventory0 = false, readingInventory1 = false, readingInventory2 = false, readingInventory3 = false, readingInventory4 = false;
+                bool readingInventory5 = false, readingInventory6 = false, readingInventory7 = false;*/
+                Race race;
+
+                readingID = true;
+                StringBuilder variableBuilder = new StringBuilder();
+                uint g_index = 0;
+                while (!inFile.EndOfStream)
+                {
+                    //string reader = "";
+                    char ch = (char)inFile.Read();
+
+                    int index_of = Program.allPossibleChars.IndexOf(ch);
+                    //System.Console.WriteLine("index_of = " + index_of + " at " + ch);
+                    if (index_of == -1)
+                    {
+                        if (readingID)
+                        {
+                            idString = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            readingID = false;
+                            readingName = true;
+                        }
+                        else if (readingName)
+                        {
+                            nameString = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            readingName = false;
+                            readingRace = true;
+                        }
+                        else if (readingRace)
+                        {
+                            raceString = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            readingRace = false;
+                            readingLevel = true;
+                        }
+                        else if (readingLevel)
+                        {
+                            levelString = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            readingLevel = false;
+                            readingExp = true;
+                        }
+                        else if (readingExp)
+                        {
+                            expString = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            readingExp = false;
+                            readingGuild = true;
+                        }
+                        else if (readingGuild)
+                        {
+                            guildString = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            readingGuild = false;
+                            readingGear0 = true;
+                        }
+                        else if (readingGear0)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear0 = false;
+                            readingGear1 = true;
+                        }
+                        else if (readingGear1)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear1 = false;
+                            readingGear2 = true;
+                        }
+                        else if (readingGear2)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear2 = false;
+                            readingGear3 = true;
+                        }
+                        else if (readingGear3)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear3 = false;
+                            readingGear4 = true;
+                        }
+                        else if (readingGear4)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear4 = false;
+                            readingGear5 = true;
+                        }
+                        else if (readingGear5)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear5 = false;
+                            readingGear6 = true;
+                        }
+                        else if (readingGear6)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear6 = false;
+                            readingGear7 = true;
+                        }
+                        else if (readingGear7)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear7 = false;
+                            readingGear8 = true;
+                        }
+                        else if (readingGear8)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear8 = false;
+                            readingGear9 = true;
+                        }
+                        else if (readingGear9)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear9 = false;
+                            readingGear10 = true;
+                        }
+                        else if (readingGear10)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear10 = false;
+                            readingGear11 = true;
+                        }
+                        else if (readingGear11)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear11 = false;
+                            readingGear12 = true;
+                        }
+                        else if (readingGear12)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear12 = false;
+                            readingGear13 = true;
+                        }
+                        else if (readingGear13)
+                        {
+                            gear[g_index++] = Convert.ToUInt32(variableBuilder.ToString());
+                            System.Console.WriteLine("In Player " + nameString + " I put " + (g_index - 1));
+                            System.Console.WriteLine(gear[g_index - 1]);
+                            variableBuilder = new StringBuilder();
+                            readingGear13 = false;
+                            switch (raceString)
+                            {
+                                case "Orc":
+                                    race = Race.Orc;
+                                    break;
+                                case "Troll":
+                                    race = Race.Troll;
+                                    break;
+                                case "Tauren":
+                                    race = Race.Tauren;
+                                    break;
+                                default:
+                                    race = Race.Forsaken;
+                                    break;
+                            }
+                            System.Console.WriteLine("I am about to add the gears for player " + nameString);
+                            /*foreach (uint gg in gear)
+                            {
+                                System.Console.WriteLine("gg = " + gg);
+                            }*/
+                            player_roster.Add(new Player(Convert.ToUInt32(idString), nameString, race, Convert.ToUInt32(levelString), Convert.ToUInt32(expString), Convert.ToUInt32(guildString), gear, inventory));
+                            gear = new uint[GEAR_SLOTS];
+                            g_index = 0;
+                            inFile.Read();
+                            readingID = true;
+                        }
+                    }
+                    else
+                    {
+                        variableBuilder.Append(ch);
+                        //System.Console.WriteLine("vbb " + variableBuilder.ToString());
+                    }
+                }
+                inventory.Add(Convert.ToUInt32(variableBuilder.ToString()));
+                switch (raceString)
+                {
+                    case "Orc":
+                        race = Race.Orc;
+                        break;
+                    case "Troll":
+                        race = Race.Troll;
+                        break;
+                    case "Tauren":
+                        race = Race.Tauren;
+                        break;
+                    default:
+                        race = Race.Forsaken;
+                        break;
+                }
+                //System.Console.WriteLine("ending the player list " + g_index);
+                gear[g_index] = Convert.ToUInt32(variableBuilder.ToString());
+                player_roster.Add(new Player(Convert.ToUInt32(idString), nameString, race, Convert.ToUInt32(levelString), Convert.ToUInt32(expString), Convert.ToUInt32(guildString), gear, inventory));
+            }
+            return player_roster;
+        }
+
+        // Option 5
+        public static void LeaveGuild(Player P)
+        {
+            P.GuildID = 0;
+        }
+
+        //Option 6
+        public static void JoinGuild(Player P, string guild_to_join)
+        {
+            string player_name = P.Name;
+       
+            using (StreamWriter outFile = new StreamWriter("joinedguilds.txt"))
+            {
+                uint nextGuildID = 0;
+                //guild.Trim();
+                switch (guild_to_join)
+                {
+                    case "Knights of Cydonia":
+                        nextGuildID = 475186;
+                        System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                        break;
+                    case "Death and Taxes":
+                        nextGuildID = 748513;
+                        System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                        break;
+                    case "I Just Crit My Pants":
+                        nextGuildID = 154794;
+                        System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                        break;
+                    case "What Have We Here":
+                        nextGuildID = 928126;
+                        System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                        break;
+                    case "Big Dumb Guild":
+                        nextGuildID = 513487;
+                        System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                        break;
+                    case "Honestly":
+                        nextGuildID = 864722;
+                        System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                        break;
+                    case "Sacred Heart":
+                        nextGuildID = 185470;
+                        System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
+                        break;
+                    default:
+                        System.Console.Write("No players or guilds by that name");
+                        break;
+                }
+                P.GuildID = nextGuildID;
+            }
+            
         }
     }
 }
