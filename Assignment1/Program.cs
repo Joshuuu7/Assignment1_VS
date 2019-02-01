@@ -165,7 +165,7 @@ namespace Assignment1
                     guild_string = "Sacred Heart";
                     break;
             }
-            return "Name: " + name + "\tRace: " + race + "\tLevel: " + level + "\tGuild: " + guild_string;
+            return string.Format( "Name: {0, -20} Race: {1, -10} Level: {2, -10} Guild:  {3, -10}", name, race, level, guild_string);
         }
     }
     public class Item : IComparable
@@ -276,7 +276,6 @@ namespace Assignment1
             System.Console.WriteLine(welcome + "! \n");
             List<Player> player_roster = getAllPlayers();
             List<Item> gears = getAllGear();
-            string guild = "";
 
             while (selectedOption != "10" || selectedOption != "q" || selectedOption != "Q" || selectedOption != "quit" || selectedOption != "Quit" || selectedOption != "exit" || selectedOption != "Exit")
             {
@@ -285,7 +284,7 @@ namespace Assignment1
                 using (StreamWriter outFile = new StreamWriter("output.txt"))
                 {
                     slacker = System.Console.ReadLine();
-                    if (Convert.ToUInt32(slacker) == 1 )
+                    if (Convert.ToUInt32(slacker) == 1)
                     {
                         outFile.WriteLine(slacker);
                         Console.Clear();
@@ -343,10 +342,20 @@ namespace Assignment1
                         Console.Clear();
                         string player_name = "name";
                         string guild_to_join = "guild";
+                        bool player_name_found = true;
 
                         System.Console.Write("Enter the player name: ");
                         player_name = System.Console.ReadLine();
 
+                        //foreach (Player P in player_roster)
+                        //{
+                        //    if (P.Name != player_name)
+                        //    { 
+                        //        player_name_found = false;
+                        //    }
+                        //}
+
+                        //if (player_name_found == true) {
                         System.Console.Write("Enter the Guild they will join: ");
                         guild_to_join = System.Console.ReadLine();
 
@@ -357,9 +366,60 @@ namespace Assignment1
                                 JoinGuild(P, guild_to_join);
                             }
                         }
-
+                        //}
+                        //else
+                        //{
+                        //    System.Console.Write("FAILURE: No players by that name. \n\n");
+                        //}
                         PrintMainMenu();
                         //Console.ReadKey();
+                    }
+                    else if (Convert.ToUInt32(slacker) == 7)
+                    {
+                        outFile.WriteLine(slacker);
+                        Console.Clear();
+                        string player_name = "name";
+                        string gear_to_equip = "gear";
+
+
+                        System.Console.Write("Enter the player name: ");
+                        player_name = System.Console.ReadLine();
+                        foreach (Player P in player_roster)
+                        {
+                            if (P.Name == player_name)
+                            {
+                                System.Console.WriteLine("Enter the item name: ");
+                                gear_to_equip = System.Console.ReadLine();
+
+                                foreach (Item item in gears)
+                                {
+                                        //player_roster.Add();
+                                        //System.Console.WriteLine("Name: {0, -20} Race: {1, -10} Level: {2, -10} Guild:  {3, -10}", player_name, P.Race.ToString(), P.Level, P.GuildID.ToString());
+                                        equipGear(P, gear_to_equip, gears);
+                                    //Player player, string item_name, List< uint > gears, List<Item> inventory
+                                }
+
+                            }
+                        }
+                        PrintMainMenu();
+                    }
+                    else if (slacker.CompareTo("9") == 0)
+                    {
+                        outFile.WriteLine(slacker);
+                        Console.Clear();
+                        // Enter Player Name
+                        System.Console.WriteLine("Please enter a player name:");
+                        string playerName = System.Console.ReadLine().Trim();
+                        //System.Console.WriteLine("You entered: " + playerName);
+                        foreach (Player P in player_roster)
+                        {
+                            if (P.Name == playerName)
+                            {
+                                //System.Console.WriteLine("I linked you with " + playerName);
+                                AwardExp(P);
+                            }
+                        }
+                        PrintMainMenu();
                     }
                     else
                     {
@@ -633,7 +693,6 @@ namespace Assignment1
         public static void PrintAllGuilds()
         {
             string reader = "";
-            string[] guildWithoutWhiteSpace;
             string guildWithoutSpaces = "";
             string[] guilds = { };
             using (StreamReader inFile = new StreamReader(@"guilds.txt"))
@@ -650,14 +709,11 @@ namespace Assignment1
                             ch[0] = ' ';
                             guildWithoutSpaces = new string(ch);
                             System.Console.WriteLine(guildWithoutSpaces);
-                            
-                            //System.Console.WriteLine("{0: -10}", guild);
-                            //System.Console.WriteLine(guildWithoutSpaces);
-                            //System.Console.WriteLine();
                         }
                     }
                 }
             }
+            System.Console.WriteLine();
         }
 
         public static List<Player> getAllPlayers()
@@ -930,7 +986,7 @@ namespace Assignment1
         public static void JoinGuild(Player P, string guild_to_join)
         {
             string player_name = P.Name;
-       
+
             using (StreamWriter outFile = new StreamWriter("joinedguilds.txt"))
             {
                 uint nextGuildID = 0;
@@ -966,12 +1022,175 @@ namespace Assignment1
                         System.Console.WriteLine(player_name + " has joined " + guild_to_join.ToString() + "!");
                         break;
                     default:
-                        System.Console.Write("No players or guilds by that name");
+                        System.Console.Write("FAILURE: No guilds by that name.");
+                        System.Console.WriteLine();
                         break;
                 }
                 P.GuildID = nextGuildID;
             }
-            
+        }
+
+        public static void equipGear(Player player, string item_name, List<Item> inventory)
+        {
+            uint player_id = player.ID;
+            string player_name = player.Name;
+            Race race = player.Race;
+            string level = player.Level.ToString();
+            string exp = player.Exp.ToString();
+            string guild = player.GuildID.ToString();
+            uint[] gears_array = player.Gear;
+            List<uint> inventory1 = new List<uint>();
+            //string item_name = item.Name;
+
+            string raceString = ((Race)race).ToString();
+            uint nextItemId = 0;
+            uint gear_length = Convert.ToUInt32(gears_array.Length - 1);
+            for (int i = gears_array.Length - 1; i <= GEAR_SLOTS; i++)
+            {
+                switch (item_name.ToString())
+                {
+                    case "Newbie's Helmet":
+                        nextItemId = 0001;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Newbie's Cloak":
+                        nextItemId = 0002;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Newbie's Raiment":
+                        nextItemId = 0003;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Newbie's Gloves":
+                        nextItemId = 0004;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Newbie's Trousers":
+                        nextItemId = 0005;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Newbie's Sandals":
+                        nextItemId = 0006;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Slacker":
+                        nextItemId = 1739;
+                        System.Console.WriteLine("Adding Slacker to" + player_name);
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Nebula's Skullcrusher":
+                        nextItemId = 1337;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Helix Nebula":
+                        nextItemId = 1338;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Nebula's Pauldrons":
+                        nextItemId = 1339;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Dread Pirate Nebula's Cloak":
+                        nextItemId = 1340;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Nebula's Resentment":
+                        nextItemId = 1341;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Nebula's Wristguards":
+                        nextItemId = 1342;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Nebula's Fury":
+                        nextItemId = 1343;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "The Spire":
+                        nextItemId = 1344;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Nebula's Legguards":
+                        nextItemId = 1345;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Nebula's Stompers":
+                        nextItemId = 1346;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Gamora's Acceptance":
+                        nextItemId = 1347;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Gamora's Love":
+                        nextItemId = 1348;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Infinity Gauntlet":
+                        nextItemId = 1349;
+                        gears_array[i] += nextItemId;
+                        break;
+                    case "Endgame":
+                        nextItemId = 1350;
+                        gears_array[i] += nextItemId;
+                        break;
+                    default:
+                        System.Console.Write("FAILURE: No items by that name.");
+                        System.Console.WriteLine();
+                        break;
+                }
+
+                switch (raceString)
+                {
+                    case "1":
+                        race = Race.Troll;
+                        break;
+                    case "2":
+                        race = Race.Tauren;
+                        break;
+                    case "3":
+                        race = Race.Forsaken;
+                        break;
+                    default:
+                        race = Race.Orc;
+                        break;
+                }
+                //inventory(gears);
+                player = new Player(player_id, player_name, race, Convert.ToUInt32(level), Convert.ToUInt32(exp), Convert.ToUInt32(guild), gears_array, inventory1);
+
+            }
+            System.Console.WriteLine("Name: {0, -20} Race: {1, -10} Level: {2, -10} Guild:  {3, -10}", player_name, race, level, guild);
+            PrintGearListForPlayer(player, inventory);
+        }
+
+        //********************************************************
+        //
+        //                                     AwardExp Method
+        //
+        //********************************************************
+        // Option 9
+        public static void AwardExp(Player P)
+        {
+
+            Console.WriteLine("Enter the amount of experience to award: ");
+            uint award = Convert.ToUInt32(Console.ReadLine());
+            uint lvl = P.Level;
+
+            award += P.Exp;
+
+            while (P.Level < 60 && award > (P.Level * 1000))
+            {
+                award = award - (P.Level * 1000);
+                P.Level += 1;
+            }
+
+            P.Exp = award;
+
+            if (lvl < 60)
+            {
+                Console.WriteLine("Ding!\nDing!\nDing!\n");
+            }
+
         }
     }
 }
