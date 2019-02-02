@@ -153,13 +153,13 @@ namespace Assignment1
                     guild_string = "Death and Taxes";
                     break;
                 case 154794:
-                    guild_string = "I just crit my pants";
+                    guild_string = "I Just Crit My Pants";
                     break;
                 case 928126:
-                    guild_string = "What have we here";
+                    guild_string = "What Have We Here";
                     break;
                 case 513487:
-                    guild_string = "Big dumb guild";
+                    guild_string = "Big Dumb Guild";
                     break;
                 case 864722:
                     guild_string = "Honestly";
@@ -257,7 +257,7 @@ namespace Assignment1
 
             const string quote = "\"";
             //string description = quote + flavor + quote;
-            return string.Format("({0}) {1} |{2}|  --{3}--\n\t'{4}'", type, name, ILVL, stamina, flavor);
+            return string.Format("({0}) {1} |{2}|  --{3}--\n\t\"{4}", type, name, ILVL, stamina, flavor);
         }
         // Class order for Item : uint i, string nm, ItemType gear_type, uint il, uint pr, uint st, uint rq, string flv
     }
@@ -445,6 +445,27 @@ namespace Assignment1
                                     AwardExp(P);
                                 }
                             }
+                            PrintMainMenu();
+                        }
+                        else if (slacker.CompareTo("T") == 0)
+                        {
+                            SortedSet<Item> items = new SortedSet<Item>();
+                            SortedSet<Player> players = new SortedSet<Player>();
+                            //players_item.Add(player_roster);
+
+                            foreach (Player P in players)
+                            {
+                                players.Add(P);
+                                Console.WriteLine(P.ToString());
+                            }
+                            //foreach (Item I in items)
+                            //{
+                            //    items.Add(I);
+                            //    Console.WriteLine(I.ToString());
+                            //}
+                            outFile.WriteLine(slacker);
+                            Console.Clear();
+                            
                             PrintMainMenu();
                         }
                         else
@@ -714,9 +735,9 @@ namespace Assignment1
         // Option 1
         public static void PrintAllPlayers(List<Player> players)
         {
-            List<Player> sorted_players = players.OrderBy(o => o.Name).ToList();
-            
-            foreach (Player Pla in sorted_players)
+            players.Sort((x, y) => x.Name.CompareTo(y.Name));
+
+            foreach (Player Pla in players)
             {
                 Console.WriteLine(Pla.ToString());
             }
