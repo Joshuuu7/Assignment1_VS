@@ -1,3 +1,12 @@
+/* *************************************************************************
+ * Programmer: Joshua Flores, Adam Olderr
+ * Date: 02/02/2019
+ * 
+ * Purpose: This is just a menu-based program that handles user-input.
+ * 
+ * 
+ ***************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,6 +139,8 @@ namespace Assignment1
             this.gear = gear;
             this.inventory = inventory;
         }
+
+        // Used to sort the objects.
         public int CompareTo(object alpha)
         {
             Player itemObject = (Player)alpha;
@@ -241,6 +252,8 @@ namespace Assignment1
             get { return flavor; }
             set { flavor = value; }
         }
+        
+        // Used to sort the objects.
         public int CompareTo(object alpha)
         {
             Item itemObject = (Item)alpha;
@@ -254,12 +267,8 @@ namespace Assignment1
         }
         public override string ToString()
         {
-
-            const string quote = "\"";
-            //string description = quote + flavor + quote;
             return string.Format("({0}) {1} |{2}|  --{3}--\n\t\"{4}", type, name, ILVL, stamina, flavor);
         }
-        // Class order for Item : uint i, string nm, ItemType gear_type, uint il, uint pr, uint st, uint rq, string flv
     }
 
     public class Program
@@ -423,7 +432,19 @@ namespace Assignment1
                             {
                                 if (P.Name == player_name)
                                 {
-                                    System.Console.WriteLine("Enter the item name: ");
+                                    System.Console.WriteLine("Enter the item slot number they will unequip: ");
+                                    Console.WriteLine("\t0 - Helmet");
+                                    Console.WriteLine("\t1 - Neck");
+                                    Console.WriteLine("\t2 - Shoulders");
+                                    Console.WriteLine("\t3 - Back");
+                                    Console.WriteLine("\t4 - Chest");
+                                    Console.WriteLine("\t5 - Wrist");
+                                    Console.WriteLine("\t6 - Gloves");
+                                    Console.WriteLine("\t7 - Belt");
+                                    Console.WriteLine("\t8 - Pants");
+                                    Console.WriteLine("\t9 - Boots");
+                                    Console.WriteLine("\t10 - Ring");
+                                    Console.WriteLine("\t11 - Trinklet");
                                     gear_to_equip = System.Console.ReadLine();
                                     UnequipGear(P, gear_to_equip);
                                 }
@@ -451,18 +472,16 @@ namespace Assignment1
                         {
                             SortedSet<Item> items = new SortedSet<Item>();
                             SortedSet<Player> players = new SortedSet<Player>();
-                            //players_item.Add(player_roster);
-
-                            foreach (Player P in players)
+                            foreach (Player P in player_roster)
                             {
                                 players.Add(P);
                                 Console.WriteLine(P.ToString());
                             }
-                            //foreach (Item I in items)
-                            //{
-                            //    items.Add(I);
-                            //    Console.WriteLine(I.ToString());
-                            //}
+                            foreach (Item I in gears )
+                            {
+                                items.Add(I);
+                                Console.WriteLine(I.ToString());
+                            }
                             outFile.WriteLine(slacker);
                             Console.Clear();
                             
@@ -484,6 +503,13 @@ namespace Assignment1
             // Go to http://aka.ms/dotnet-get-started-console to continue learning how to build a console app! 
         }
 
+        //********************************************************************************
+        //
+        //                                     PrintMainMenu
+        //                                     
+        //
+        //********************************************************************************
+
         public static void PrintMainMenu()
         {
             string welcome = "Welcome to the World of ConflictCraft: Testing Environment";
@@ -501,238 +527,13 @@ namespace Assignment1
             System.Console.WriteLine();
         }
 
-        // Option 4
-        public static void PrintGearListForPlayer(Player P, List<Item> gears)
-        {
-            uint[] gears_array = P.Gear;
-            foreach (int g in gears_array)
-            {
-                foreach (Item i in gears)
-                {
-                    if (i.ID == g)
-                    {
-                        Console.WriteLine(i.ToString());
-                    }
-                }
-            }
-        }
+        //********************************************************************************
+        //
+        //                                     PrintAllPlayers
+        //                                     Option 1
+        //
+        //********************************************************************************
 
-
-
-        // Option 3
-        public static void ListAllGear(List<Item> gears)
-        {
-            foreach (Item g in gears)
-            {
-                Console.WriteLine(g.ToString());
-            }
-        }
-
-        public static List<Item> getAllGear()
-        {
-            List<Item> allGear = new List<Item>();
-            using (StreamReader inFile = new StreamReader("equipment.txt"))
-            {
-                string gearID = "";
-                string gearName = "";
-                string gearNo1 = "";
-                string gearNo2 = "";
-                string gearNo3 = "";
-                string gearNo4 = "";
-                string gearNo5 = "";
-                string gearSlogan = "";
-
-                bool readingGearID = true;
-                bool readingGearNo1 = false;
-                bool readingGearNo2 = false;
-                bool readingGearNo3 = false;
-                bool readingGearNo4 = false;
-                bool readingGearNo5 = false;
-
-                StringBuilder variableBuilder = new StringBuilder();
-                ItemType gear_type;
-                while (!inFile.EndOfStream)
-                {
-                    char ch = (char)inFile.Read();
-                    int index_of = Program.allPossibleChars.IndexOf(ch);
-                    if (index_of == -1)
-                    {
-                        if (readingGearID)
-                        {
-                            readingGearID = false;
-                            gearID = variableBuilder.ToString();
-                            variableBuilder = new StringBuilder();
-                            do
-                            {
-                                ch = (char)inFile.Read();
-                                index_of = Program.allPossibleChars.IndexOf(ch);
-                            }
-                            while (index_of == -1);
-                            index_of = -1;
-                            while (index_of == -1)
-                            {
-                                variableBuilder.Append(ch);
-                                ch = (char)inFile.Read();
-                                index_of = Program.digits.IndexOf(ch);
-                            }
-                            gearName = variableBuilder.ToString();
-                            variableBuilder = new StringBuilder();
-                            variableBuilder.Append(ch);
-                            readingGearNo1 = true;
-                        }
-                        else if (readingGearNo1)
-                        {
-                            gearNo1 = variableBuilder.ToString();
-                            readingGearNo1 = false;
-                            readingGearNo2 = true;
-                            variableBuilder = new StringBuilder();
-                        }
-                        else if (readingGearNo2)
-                        {
-                            gearNo2 = variableBuilder.ToString();
-                            readingGearNo2 = false;
-                            readingGearNo3 = true;
-                            variableBuilder = new StringBuilder();
-                        }
-                        else if (readingGearNo3)
-                        {
-                            gearNo3 = variableBuilder.ToString();
-                            readingGearNo3 = false;
-                            readingGearNo4 = true;
-                            variableBuilder = new StringBuilder();
-                        }
-                        else if (readingGearNo4)
-                        {
-                            gearNo4 = variableBuilder.ToString();
-                            readingGearNo4 = false;
-                            readingGearNo5 = true;
-                            variableBuilder = new StringBuilder();
-                        }
-                        else if (readingGearNo5)
-                        {
-                            gearNo5 = variableBuilder.ToString();
-                            readingGearNo5 = false;
-                            variableBuilder = new StringBuilder();
-                            do
-                            {
-                                ch = (char)inFile.Read();
-                                index_of = Program.allPossibleChars.IndexOf(ch);
-                            }
-                            while (index_of == -1);
-                            index_of = -1;
-                            while (index_of == -1)
-                            {
-                                while (index_of == -1)
-                                {
-                                    variableBuilder.Append(ch);
-                                    ch = (char)inFile.Read();
-                                    index_of = Program.digits.IndexOf(ch);
-                                    if (inFile.EndOfStream)
-                                    {
-                                        variableBuilder.Append(ch);
-                                        gearSlogan = variableBuilder.ToString();
-                                        switch (Convert.ToUInt32(gearNo1))
-                                        {
-                                            case 0:
-                                                gear_type = ItemType.Helmet;
-                                                break;
-                                            case 1:
-                                                gear_type = ItemType.Neck;
-                                                break;
-                                            case 2:
-                                                gear_type = ItemType.Shoulders;
-                                                break;
-                                            case 3:
-                                                gear_type = ItemType.Back;
-                                                break;
-                                            case 4:
-                                                gear_type = ItemType.Chest;
-                                                break;
-                                            case 5:
-                                                gear_type = ItemType.Wrist;
-                                                break;
-                                            case 6:
-                                                gear_type = ItemType.Gloves;
-                                                break;
-                                            case 7:
-                                                gear_type = ItemType.Belt;
-                                                break;
-                                            case 8:
-                                                gear_type = ItemType.Pants;
-                                                break;
-                                            case 9:
-                                                gear_type = ItemType.Boots;
-                                                break;
-                                            case 10:
-                                                gear_type = ItemType.Ring;
-                                                break;
-                                            default:
-                                                gear_type = ItemType.Trinket;
-                                                break;
-                                        }
-                                        allGear.Add(new Item(Convert.ToUInt32(gearID), gearName, gear_type, Convert.ToUInt32(gearNo2), Convert.ToUInt32(gearNo3), Convert.ToUInt32(gearNo4), Convert.ToUInt32(gearNo5), gearSlogan));
-                                        //System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
-                                        return allGear;
-                                    }
-                                }
-                                gearSlogan = variableBuilder.ToString();
-                                switch (Convert.ToUInt32(gearNo1))
-                                {
-                                    case 0:
-                                        gear_type = ItemType.Helmet;
-                                        break;
-                                    case 1:
-                                        gear_type = ItemType.Neck;
-                                        break;
-                                    case 2:
-                                        gear_type = ItemType.Shoulders;
-                                        break;
-                                    case 3:
-                                        gear_type = ItemType.Back;
-                                        break;
-                                    case 4:
-                                        gear_type = ItemType.Chest;
-                                        break;
-                                    case 5:
-                                        gear_type = ItemType.Wrist;
-                                        break;
-                                    case 6:
-                                        gear_type = ItemType.Gloves;
-                                        break;
-                                    case 7:
-                                        gear_type = ItemType.Belt;
-                                        break;
-                                    case 8:
-                                        gear_type = ItemType.Pants;
-                                        break;
-                                    case 9:
-                                        gear_type = ItemType.Boots;
-                                        break;
-                                    case 10:
-                                        gear_type = ItemType.Ring;
-                                        break;
-                                    default:
-                                        gear_type = ItemType.Trinket;
-                                        break;
-                                }
-                                allGear.Add(new Item(Convert.ToUInt32(gearID), gearName, gear_type, Convert.ToUInt32(gearNo2), Convert.ToUInt32(gearNo3), Convert.ToUInt32(gearNo4), Convert.ToUInt32(gearNo5), gearSlogan));
-                                //System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
-                                variableBuilder = new StringBuilder();
-                                variableBuilder.Append(ch);
-                                readingGearID = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        variableBuilder.Append(ch);
-                    }
-                }
-            }
-            return allGear;
-        }
-
-        // Option 1
         public static void PrintAllPlayers(List<Player> players)
         {
             players.Sort((x, y) => x.Name.CompareTo(y.Name));
@@ -743,32 +544,12 @@ namespace Assignment1
             }
         }
 
-        // Option 2
-        public static void PrintAllGuilds()
-        {
-            string reader = "";
-            string guildWithoutSpaces = "";
-            string[] guilds = { };
-            using (StreamReader inFile = new StreamReader(@"guilds.txt"))
-            {
-                string guild = "";
-                while (!inFile.EndOfStream)
-                {
-                    reader = inFile.ReadLine().ToString();
-                    {
-                        {
-                            // Code from https://stackoverflow.com/questions/7411438/remove-characters-from-c-sharp-string 
-                            guild = new string((from c in reader where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
-                            char[] ch = guild.ToCharArray();
-                            ch[0] = ' ';
-                            guildWithoutSpaces = new string(ch);
-                            System.Console.WriteLine(guildWithoutSpaces);
-                        }
-                    }
-                }
-            }
-            System.Console.WriteLine();
-        }
+        //********************************************************************************
+        //
+        //                                     getAllPlayers
+        //                                     
+        //
+        //********************************************************************************
 
         public static List<Player> getAllPlayers()
         {
@@ -991,13 +772,300 @@ namespace Assignment1
             return player_roster;
         }
 
-        // Option 5
+        //********************************************************************************
+        //
+        //                                     PrintAllGuilds
+        //                                     Option 2
+        //
+        //********************************************************************************
+
+        public static void PrintAllGuilds()
+        {
+            string reader = "";
+            string guildWithoutSpaces = "";
+            string[] guilds = { };
+            using (StreamReader inFile = new StreamReader(@"guilds.txt"))
+            {
+                string guild = "";
+                while (!inFile.EndOfStream)
+                {
+                    reader = inFile.ReadLine().ToString();
+                    {
+                        {
+                            // Code from https://stackoverflow.com/questions/7411438/remove-characters-from-c-sharp-string 
+                            guild = new string((from c in reader where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
+                            char[] ch = guild.ToCharArray();
+                            ch[0] = ' ';
+                            guildWithoutSpaces = new string(ch);
+                            System.Console.WriteLine(guildWithoutSpaces);
+                        }
+                    }
+                }
+            }
+            System.Console.WriteLine();
+        }
+
+
+        //********************************************************************************
+        //
+        //                                     ListAllGear
+        //                                     Option 3
+        //
+        //********************************************************************************
+
+        public static void ListAllGear(List<Item> gears)
+        {
+            foreach (Item g in gears)
+            {
+                Console.WriteLine(g.ToString());
+            }
+        }
+
+        public static List<Item> getAllGear()
+        {
+            List<Item> allGear = new List<Item>();
+            using (StreamReader inFile = new StreamReader("equipment.txt"))
+            {
+                string gearID = "";
+                string gearName = "";
+                string gearNo1 = "";
+                string gearNo2 = "";
+                string gearNo3 = "";
+                string gearNo4 = "";
+                string gearNo5 = "";
+                string gearSlogan = "";
+
+                bool readingGearID = true;
+                bool readingGearNo1 = false;
+                bool readingGearNo2 = false;
+                bool readingGearNo3 = false;
+                bool readingGearNo4 = false;
+                bool readingGearNo5 = false;
+
+                StringBuilder variableBuilder = new StringBuilder();
+                ItemType gear_type;
+                while (!inFile.EndOfStream)
+                {
+                    char ch = (char)inFile.Read();
+                    int index_of = Program.allPossibleChars.IndexOf(ch);
+                    if (index_of == -1)
+                    {
+                        if (readingGearID)
+                        {
+                            readingGearID = false;
+                            gearID = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            do
+                            {
+                                ch = (char)inFile.Read();
+                                index_of = Program.allPossibleChars.IndexOf(ch);
+                            }
+                            while (index_of == -1);
+                            index_of = -1;
+                            while (index_of == -1)
+                            {
+                                variableBuilder.Append(ch);
+                                ch = (char)inFile.Read();
+                                index_of = Program.digits.IndexOf(ch);
+                            }
+                            gearName = variableBuilder.ToString();
+                            variableBuilder = new StringBuilder();
+                            variableBuilder.Append(ch);
+                            readingGearNo1 = true;
+                        }
+                        else if (readingGearNo1)
+                        {
+                            gearNo1 = variableBuilder.ToString();
+                            readingGearNo1 = false;
+                            readingGearNo2 = true;
+                            variableBuilder = new StringBuilder();
+                        }
+                        else if (readingGearNo2)
+                        {
+                            gearNo2 = variableBuilder.ToString();
+                            readingGearNo2 = false;
+                            readingGearNo3 = true;
+                            variableBuilder = new StringBuilder();
+                        }
+                        else if (readingGearNo3)
+                        {
+                            gearNo3 = variableBuilder.ToString();
+                            readingGearNo3 = false;
+                            readingGearNo4 = true;
+                            variableBuilder = new StringBuilder();
+                        }
+                        else if (readingGearNo4)
+                        {
+                            gearNo4 = variableBuilder.ToString();
+                            readingGearNo4 = false;
+                            readingGearNo5 = true;
+                            variableBuilder = new StringBuilder();
+                        }
+                        else if (readingGearNo5)
+                        {
+                            gearNo5 = variableBuilder.ToString();
+                            readingGearNo5 = false;
+                            variableBuilder = new StringBuilder();
+                            do
+                            {
+                                ch = (char)inFile.Read();
+                                index_of = Program.allPossibleChars.IndexOf(ch);
+                            }
+                            while (index_of == -1);
+                            index_of = -1;
+                            while (index_of == -1)
+                            {
+                                while (index_of == -1)
+                                {
+                                    variableBuilder.Append(ch);
+                                    ch = (char)inFile.Read();
+                                    index_of = Program.digits.IndexOf(ch);
+                                    if (inFile.EndOfStream)
+                                    {
+                                        variableBuilder.Append(ch);
+                                        gearSlogan = variableBuilder.ToString();
+                                        switch (Convert.ToUInt32(gearNo1))
+                                        {
+                                            case 0:
+                                                gear_type = ItemType.Helmet;
+                                                break;
+                                            case 1:
+                                                gear_type = ItemType.Neck;
+                                                break;
+                                            case 2:
+                                                gear_type = ItemType.Shoulders;
+                                                break;
+                                            case 3:
+                                                gear_type = ItemType.Back;
+                                                break;
+                                            case 4:
+                                                gear_type = ItemType.Chest;
+                                                break;
+                                            case 5:
+                                                gear_type = ItemType.Wrist;
+                                                break;
+                                            case 6:
+                                                gear_type = ItemType.Gloves;
+                                                break;
+                                            case 7:
+                                                gear_type = ItemType.Belt;
+                                                break;
+                                            case 8:
+                                                gear_type = ItemType.Pants;
+                                                break;
+                                            case 9:
+                                                gear_type = ItemType.Boots;
+                                                break;
+                                            case 10:
+                                                gear_type = ItemType.Ring;
+                                                break;
+                                            default:
+                                                gear_type = ItemType.Trinket;
+                                                break;
+                                        }
+                                        allGear.Add(new Item(Convert.ToUInt32(gearID), gearName, gear_type, Convert.ToUInt32(gearNo2), Convert.ToUInt32(gearNo3), Convert.ToUInt32(gearNo4), Convert.ToUInt32(gearNo5), gearSlogan));
+                                        //System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
+                                        return allGear;
+                                    }
+                                }
+                                gearSlogan = variableBuilder.ToString();
+                                switch (Convert.ToUInt32(gearNo1))
+                                {
+                                    case 0:
+                                        gear_type = ItemType.Helmet;
+                                        break;
+                                    case 1:
+                                        gear_type = ItemType.Neck;
+                                        break;
+                                    case 2:
+                                        gear_type = ItemType.Shoulders;
+                                        break;
+                                    case 3:
+                                        gear_type = ItemType.Back;
+                                        break;
+                                    case 4:
+                                        gear_type = ItemType.Chest;
+                                        break;
+                                    case 5:
+                                        gear_type = ItemType.Wrist;
+                                        break;
+                                    case 6:
+                                        gear_type = ItemType.Gloves;
+                                        break;
+                                    case 7:
+                                        gear_type = ItemType.Belt;
+                                        break;
+                                    case 8:
+                                        gear_type = ItemType.Pants;
+                                        break;
+                                    case 9:
+                                        gear_type = ItemType.Boots;
+                                        break;
+                                    case 10:
+                                        gear_type = ItemType.Ring;
+                                        break;
+                                    default:
+                                        gear_type = ItemType.Trinket;
+                                        break;
+                                }
+                                allGear.Add(new Item(Convert.ToUInt32(gearID), gearName, gear_type, Convert.ToUInt32(gearNo2), Convert.ToUInt32(gearNo3), Convert.ToUInt32(gearNo4), Convert.ToUInt32(gearNo5), gearSlogan));
+                                //System.Console.WriteLine("id: " + gearID + " name: " + gearName + " " + gearNo1 + " " + gearNo2 + " " + gearNo3 + " " + gearNo4 + " " + gearNo5 + " slogan: " + gearSlogan);
+                                variableBuilder = new StringBuilder();
+                                variableBuilder.Append(ch);
+                                readingGearID = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        variableBuilder.Append(ch);
+                    }
+                }
+            }
+            return allGear;
+        }
+
+        //********************************************************************************
+        //
+        //                                     PrintGearListForPlayer
+        //                                     Option 4
+        //
+        //********************************************************************************
+
+        public static void PrintGearListForPlayer(Player P, List<Item> gears)
+        {
+            uint[] gears_array = P.Gear;
+            foreach (int g in gears_array)
+            {
+                foreach (Item i in gears)
+                {
+                    if (i.ID == g)
+                    {
+                        Console.WriteLine(i.ToString());
+                    }
+                }
+            }
+        }
+
+        //********************************************************************************
+        //
+        //                                     LeaveGuild
+        //                                     Option 5
+        //
+        //********************************************************************************
+
         public static void LeaveGuild(Player P)
         {
             P.GuildID = 0;
         }
 
-        //Option 6
+        //********************************************************************************
+        //
+        //                                     JoinGuild
+        //                                     Option 6
+        //
+        //********************************************************************************
+
         public static void JoinGuild(Player P, string guild_to_join)
         {
             string player_name = P.Name;
@@ -1044,53 +1112,10 @@ namespace Assignment1
             }
         }
 
-        public static void determineType(ItemType type)
-        {
-
-            switch (Convert.ToUInt32(type))
-            {
-                case 0:
-                    type = ItemType.Helmet;
-                    break;
-                case 1:
-                    type = ItemType.Neck;
-                    break;
-                case 2:
-                    type = ItemType.Shoulders;
-                    break;
-                case 3:
-                    type = ItemType.Back;
-                    break;
-                case 4:
-                    type = ItemType.Chest;
-                    break;
-                case 5:
-                    type = ItemType.Wrist;
-                    break;
-                case 6:
-                    type = ItemType.Gloves;
-                    break;
-                case 7:
-                    type = ItemType.Belt;
-                    break;
-                case 8:
-                    type = ItemType.Pants;
-                    break;
-                case 9:
-                    type = ItemType.Boots;
-                    break;
-                case 10:
-                    type = ItemType.Ring;
-                    break;
-                default:
-                    type = ItemType.Trinket;
-                    break;
-            }
-        }
-
         //********************************************************************************
         //
         //                                     equipGear
+        //                                     Option 7
         //
         //********************************************************************************
 
@@ -1191,8 +1216,10 @@ namespace Assignment1
         //********************************************************************************
         //
         //                                     equipGear
+        // 
         //
         //********************************************************************************
+
         public static void equipGear(Player player, string item_name)
         {
             uint nextItemId = 0;
@@ -1278,75 +1305,75 @@ namespace Assignment1
             System.Console.WriteLine(player.Name + " did not have that to begin with.");
         }
 
-        // Option 8
-        
+        //********************************************************************************
+        //
+        //                                     UnequipGear
+        //                                     Option 8
+        //
+        //********************************************************************************
+
         public static void UnequipGear(Player player, string item_name)
         {
-            uint nextItemId = 0;
+            uint nextItemId = 0, nextItemId1 = 0 , nextItemId2 = 0;
+
             switch (item_name)
             {
-                case "Newbie's Helmet":
+                // Helmet: Newbie's Helmet, Nebula's Skullcrusher
+                case "0":
                     nextItemId = 0001;
+                    nextItemId1 = 1337;
                     break;
-                case "Newbie's Cloak":
-                    nextItemId = 0002;
-                    break;
-                case "Newbie's Raiment":
-                    nextItemId = 0003;
-                    break;
-                case "Newbie's Gloves":
-                    nextItemId = 0004;
-                    break;
-                case "Newbie's Trousers":
-                    nextItemId = 0005;
-                    break;
-                case "Newbie's Sandals":
-                    nextItemId = 0006;
-                    break;
-                case "Slacker":
-                    nextItemId = 1739;
-                    break;
-                case "Nebula's Skullcrusher":
-                    nextItemId = 1337;
-                    break;
-                case "Helix Nebula":
+                // Neck: Helix Nebula
+                case "1":
                     nextItemId = 1338;
                     break;
-                case "Nebula's Pauldrons":
+                // Shoulders: Nebula's Pauldrons
+                case "2":
                     nextItemId = 1339;
                     break;
-                case "Dread Pirate Nebula's Cloak":
-                    nextItemId = 1340;
+                // Back: Newbie's Cloak, Dread Pirate Nebula's Cloak
+                case "3":
+                    nextItemId = 0002;
+                    nextItemId1 = 1340;
                     break;
-                case "Nebula's Resentment":
-                    nextItemId = 1341;
+                // Wrist: Newbie's Raiment, Nebula's Resentment
+                case "4":
+                    nextItemId = 0003;
+                    nextItemId1 = 1341;
                     break;
-                case "Nebula's Wristguards":
+                // Wrist: Nebula's Wristguards
+                case "5":
                     nextItemId = 1342;
                     break;
-                case "Nebula's Fury":
-                    nextItemId = 1343;
+                // Gloves: Newbie's Gloves, Nebula's Fury
+                case "6":
+                    nextItemId = 0004;
+                    nextItemId1 = 1343;
                     break;
-                case "The Spire":
+                // Belt: The Spire
+                case "7":
                     nextItemId = 1344;
                     break;
-                case "Nebula's Legguards":
-                    nextItemId = 1345;
+                // Pants: Newbie's Trousers, Nebula's Legguards
+                case "8":
+                    nextItemId = 0005;
+                    nextItemId1 = 1345;
                     break;
-                case "Nebula's Stompers":
-                    nextItemId = 1346;
+                // Boots: Newbie's Sandals, Nebula's Stompers
+                case "9":
+                    nextItemId = 0006;
+                    nextItemId1 = 1346;
                     break;
-                case "Gamora's Acceptance":
-                    nextItemId = 1347;
-                    break;
-                case "Gamora's Love":
+                // Ring: Gamora's Acceptance, Gamora's Love
+                case "10":
                     nextItemId = 1348;
+                    nextItemId1 = 1347;
                     break;
-                case "Infinity Gauntlet":
-                    nextItemId = 1349;
-                    break;
-                case "Endgame":
-                    nextItemId = 1350;
+                // Trinket: Slacker, Infinity Gauntlet, Endgame
+                case "11":
+                    nextItemId = 1739;
+                    nextItemId1 = 1349;
+                    nextItemId2 = 1350;
                     break;
                 default:
                     System.Console.Write("FAILURE: No items by that name.");
@@ -1356,7 +1383,7 @@ namespace Assignment1
             uint[] player_gears = player.Gear;
             for (uint i = 0; i < GEAR_SLOTS; i++)
             {
-                if (player_gears[i] == nextItemId)
+                if (player_gears[i] == nextItemId || player_gears[i] == nextItemId1 || player_gears[i] == nextItemId2)
                 {
                     player_gears[i] = 0;
                     return;
@@ -1365,13 +1392,13 @@ namespace Assignment1
             System.Console.WriteLine(player.Name + " did not have that to begin with.");
         }
 
-        //********************************************************
+        //********************************************************************************
         //
         //                                     AwardExp Method
+        //                                     Option 9
         //
-        //********************************************************
+        //********************************************************************************
 
-        // Option 9
         public static void AwardExp(Player P)
         {
 
